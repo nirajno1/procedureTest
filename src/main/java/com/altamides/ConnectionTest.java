@@ -1,84 +1,86 @@
 package com.altamides;
 
-import javax.swing.*;
 import java.io.IOException;
-import java.sql.CallableStatement;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
-import java.sql.Types;
-import java.util.Properties;
+import java.sql.*;
 import java.util.logging.*;
 
+import static java.lang.System.exit;
+
 public class ConnectionTest {
-    private static Logger log= Logger.getLogger(ConnectionTest.class.getName());
+    private static final Logger log = Logger.getLogger(ConnectionTest.class.getName());
 
-    public void callProcedure(String[] args){
-
+    public void callProcedure(String[] args) {
         log.fine("Starting application to call oracle procedure");
-        if(args.length>0) {
-            App app = new App();
-            Properties prop = null;
+        if (args.length > 0) {
+            DBConfig dbConfig = getDBConfig();
+            logMessgae(Level.CONFIG, "Procedure name:".concat(dbConfig.getProcedureName())
+                    .concat(" and out param number:") + dbConfig.getNumOutParam());
             try {
-                prop = app.getProperties();
-            } catch (IOException e) {
-                log.severe(e.getMessage());
-            }
-
-            /* propertieds reltated to connection */
-            String connectionURL = prop.getProperty("spring.datasource.url");
-            String user = prop.getProperty("spring.datasource.username");
-            String password = prop.getProperty("spring.datasource.password");
-            String driver = prop.getProperty("spring.datasource.driver-class-name");
-
-            /* properties related to procedure */
-            String runSP = prop.getProperty("oracle.preprocedure.name");
-            String numOutParam = prop.getProperty("number.out.param");
-            log.config("Procedure name:".concat(runSP).concat(" and out param number:").concat(numOutParam));
-            int numOutParamint = Integer.parseInt(numOutParam);
-
-            try {
-                Class.forName(driver);
+                Class.forName(dbConfig.getDriver());
             } catch (ClassNotFoundException e) {
-                log.severe(e.getMessage());
+                logMessgae(Level.SEVERE, e.getMessage());
+                exit(1);
             }
-            try (Connection conn = DriverManager.getConnection(connectionURL, user, password);
-                 CallableStatement callableStatement = conn.prepareCall(runSP)) {
-                log.info("***************************************************************");
-                String imei=args[0];
-                log.config("calling with "+imei);
+            try (Connection conn = DriverManager.getConnection(dbConfig.getConnectionURL(), dbConfig.getUser(), dbConfig.getPassword());
+                 CallableStatement callableStatement = conn.prepareCall(dbConfig.getProcedureName())) {
+
+                logMessgae(Level.INFO, "***************************************************************");
+                String imei = args[0];
+                logMessgae(Level.CONFIG, "calling with ".concat(imei));
                 callableStatement.setString(1, imei);
-                for (int i = 1; i <= numOutParamint; i++) {
+                for (int i = 1; i <= dbConfig.getNumOutParam(); i++) {
                     callableStatement.registerOutParameter(i + 1, Types.VARCHAR);
                 }
-                log.info("***************************************************************");
-
-
                 callableStatement.execute();
                 String msisdn = callableStatement.getString(2);
                 String imsi = callableStatement.getString(3);
+                logMessgae(Level.INFO, "Result received -> msisdn: ".concat(msisdn).concat("  imsi: ").concat(imsi));
+                logMessgae(Level.INFO, "***************************************************************");
 
-                log.config("Result received -> msisdn: ".concat(msisdn).concat("  imsi: ").concat(imsi));
             } catch (SQLException e) {
-                log.severe(e.getMessage());
+                logMessgae(Level.SEVERE, e.getMessage());
             }
-        }else{
-            log.severe("Pass IMEI code");
+        } else {
+            logMessgae(Level.SEVERE, "Pass IMEI code");
         }
     }
-    public static void main(String[] args) throws ClassNotFoundException, IOException {
-        initLogger();
-        ConnectionTest conntest=new ConnectionTest();
+
+    private void logMessgae(Level level, String message) {
+        if (Level.CONFIG == level && log.getLevel() == level) {
+            log.config(message);
+        } else if (Level.INFO == level && log.getLevel() == level) {
+            log.info(message);
+        } else if (Level.FINE == level && log.getLevel() == level) {
+            log.fine(message);
+        } else if (Level.SEVERE == level && log.getLevel() == level) {
+            log.severe(message);
+        }
+    }
+
+    private DBConfig getDBConfig() {
+        DBConfig dbConfig = null;
+        try {
+            App app = new App();
+            dbConfig = app.getDBConfig();
+        } catch (IOException e) {
+            log.severe(e.getMessage());
+            exit(1);
+        }
+        return dbConfig;
+    }
+
+    public static void main(String[] args) {
+        ConnectionTest conntest = new ConnectionTest();
+        conntest.initLogger();
         conntest.callProcedure(args);
     }
-    private static void initLogger() {
-        Handler consoleHandler = null;
-        Handler fileHandler = null;
+
+    private void initLogger() {
         try {
             //Creating consoleHandler and fileHandler
-            consoleHandler = new ConsoleHandler();
-            fileHandler = new FileHandler("./callSP.log");
-            SimpleFormatter  simpleFormatter = new SimpleFormatter();
+            Handler consoleHandler = new ConsoleHandler();
+            Handler fileHandler = new FileHandler("./callSP.log");
+            SimpleFormatter simpleFormatter = new SimpleFormatter();
             consoleHandler.setFormatter(simpleFormatter);
             fileHandler.setFormatter(simpleFormatter);
             //Assigning handlers to LOGGER object
@@ -100,8 +102,6 @@ public class ConnectionTest {
         } catch (IOException exception) {
             log.log(Level.SEVERE, "Error occur in FileHandler.", exception);
         }
-
-        log.finer("Finest example on LOGGER handler completed.");
     }
 }
 
