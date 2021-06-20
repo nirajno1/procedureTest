@@ -10,7 +10,7 @@ public class ConnectionTest {
     private static final Logger log = Logger.getLogger(ConnectionTest.class.getName());
 
     public void callProcedure(String[] args) {
-        log.fine("Starting application to call oracle procedure");
+        logMessgae(Level.FINE,"Starting application to call oracle procedure");
         if (args.length > 0) {
             DBConfig dbConfig = getDBConfig();
             logMessgae(Level.CONFIG, "Procedure name:".concat(dbConfig.getProcedureName())
@@ -34,7 +34,7 @@ public class ConnectionTest {
                 callableStatement.execute();
                 String msisdn = callableStatement.getString(2);
                 String imsi = callableStatement.getString(3);
-                logMessgae(Level.INFO, "Result received -> msisdn: ".concat(msisdn).concat("  imsi: ").concat(imsi));
+                logMessgae(Level.CONFIG, "Result received -> msisdn: ".concat(msisdn).concat("  imsi: ").concat(imsi));
                 logMessgae(Level.INFO, "***************************************************************");
 
             } catch (SQLException e) {
@@ -46,13 +46,13 @@ public class ConnectionTest {
     }
 
     private void logMessgae(Level level, String message) {
-        if (Level.CONFIG == level && log.getLevel() == level) {
+        if (Level.CONFIG.equals(level) ) {
             log.config(message);
-        } else if (Level.INFO == level && log.getLevel() == level) {
+        } else if (Level.INFO.equals(level) ) {
             log.info(message);
-        } else if (Level.FINE == level && log.getLevel() == level) {
+        } else if (Level.FINE.equals(level) ) {
             log.fine(message);
-        } else if (Level.SEVERE == level && log.getLevel() == level) {
+        } else if (Level.SEVERE.equals(level)) {
             log.severe(message);
         }
     }
@@ -79,7 +79,7 @@ public class ConnectionTest {
         try {
             //Creating consoleHandler and fileHandler
             Handler consoleHandler = new ConsoleHandler();
-            Handler fileHandler = new FileHandler("./callSP.log");
+            Handler fileHandler = new FileHandler("./procedureCallApp.log");
             SimpleFormatter simpleFormatter = new SimpleFormatter();
             consoleHandler.setFormatter(simpleFormatter);
             fileHandler.setFormatter(simpleFormatter);
@@ -96,9 +96,9 @@ public class ConnectionTest {
             log.config("Configuration done.");
 
             //Console handler removed
-            log.removeHandler(consoleHandler);
+            //log.removeHandler(consoleHandler);
 
-            log.log(Level.FINE, "Finer logged");
+            //log.log(Level.FINE, "Finer logged");
         } catch (IOException exception) {
             log.log(Level.SEVERE, "Error occur in FileHandler.", exception);
         }

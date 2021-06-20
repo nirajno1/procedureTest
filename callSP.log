@@ -1,18 +1,6 @@
-Jun 20, 2021 9:42:10 AM com.altamides.ConnectionTest initLogger
+Jun 20, 2021 10:53:31 AM com.altamides.ConnectionTest initLogger
 CONFIG: Configuration done.
-Jun 20, 2021 9:42:10 AM com.altamides.ConnectionTest initLogger
+Jun 20, 2021 10:53:31 AM com.altamides.ConnectionTest initLogger
 FINE: Finer logged
-Jun 20, 2021 9:42:10 AM com.altamides.ConnectionTest initLogger
-FINER: Finest example on LOGGER handler completed.
-Jun 20, 2021 9:42:10 AM com.altamides.ConnectionTest callProcedure
+Jun 20, 2021 10:53:31 AM com.altamides.ConnectionTest callProcedure
 FINE: Starting application to call oracle procedure
-Jun 20, 2021 9:42:10 AM com.altamides.ConnectionTest callProcedure
-CONFIG: Procedure name:{ call GET_IMEI_IMSI_MSIDN(?,?,?,?,?) } and out param number:4
-Jun 20, 2021 9:42:11 AM com.altamides.ConnectionTest callProcedure
-INFO: ***************************************************************
-Jun 20, 2021 9:42:11 AM com.altamides.ConnectionTest callProcedure
-CONFIG: calling with 3515540502583200
-Jun 20, 2021 9:42:11 AM com.altamides.ConnectionTest callProcedure
-INFO: ***************************************************************
-Jun 20, 2021 9:42:11 AM com.altamides.ConnectionTest callProcedure
-CONFIG: Result received -> msisdn: 3515540502583200  imsi: 602041550000099
