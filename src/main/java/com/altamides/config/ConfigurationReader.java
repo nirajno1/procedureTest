@@ -1,15 +1,21 @@
-package com.altamides;
+package com.altamides.config;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 import java.util.logging.Logger;
+
+import com.altamides.model.DBConfig;
 
 /**
  * Hello world!
  *
  */
-public class App {
-    Logger log= Logger.getLogger(App.class.getName());
+public class ConfigurationReader {
+	private Logger log= LogManager.getLogger();
     private Properties getProperties() throws IOException {
     	try {
     	    log.fine("Reading properties files");
@@ -40,9 +46,11 @@ public class App {
         String driver = prop.getProperty("spring.datasource.driver-class-name");
 
         /* properties related to procedure */
-        String procedure = prop.getProperty("oracle.preprocedure.name");
+        String procedure = prop.getProperty("db.procedure.name");
+        String callString = prop.getProperty("db.procedure.callString");
         String numOutParam = prop.getProperty("number.out.param");
         int numOutParamint = Integer.parseInt(numOutParam);
+        String sqlQuery=prop.getProperty("db.sql.query");
 
         DBConfig dbConfig=new DBConfig();
         dbConfig.setConnectionURL(connectionURL);
@@ -50,7 +58,12 @@ public class App {
         dbConfig.setPassword(password);
         dbConfig.setDriver(driver);
         dbConfig.setProcedureName(procedure);
+        dbConfig.setCallString(callString);
         dbConfig.setNumOutParam(numOutParamint);
+        dbConfig.setSqlQuery(sqlQuery);
+        dbConfig.setProcedureRefcurCallString(prop.getProperty("db.procedure.refcur.callString"));
         return dbConfig;
     }
+    
+
 }
